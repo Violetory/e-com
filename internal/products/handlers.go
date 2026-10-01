@@ -15,12 +15,12 @@ func NewHandler(service Service) *Handler {
 }
 
 func (h *Handler) ListProducts(w http.ResponseWriter, r *http.Request) {
-	if err := h.service.ListProducts(r.Context()); err != nil {
+	products, err := h.service.ListProducts(r.Context())
+	if err != nil {
 		log.Println("获取产品列表失败:", err)
 		http.Error(w, "获取产品列表失败", http.StatusInternalServerError)
 		return
 	}
 
-	productList := []string{"Hello", "World"}
-	json.Write(w, http.StatusOK, productList)
+	json.Write(w, http.StatusOK, products)
 }

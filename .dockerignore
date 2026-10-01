@@ -1,0 +1,13 @@
+.git
+.idea
+.env
+.env.*
+.DS_Store
+bin
+build
+dist
+coverage
+*.out
+*.prof
+*.test
+__debug_bin*

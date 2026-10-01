@@ -1,6 +1,8 @@
 package main
 
 import (
+	repo "github.com/Violetory/e-com/internal/adapters/postgresql/sqlc"
+	"github.com/jackc/pgx/v5"
 	"log"
 	"net/http"
 	"time"
@@ -23,13 +25,15 @@ func (app *application) mount() http.Handler {
 	// Timeout middleware
 	r.Use(middleware.Timeout(60 * time.Second))
 
+	// 健康检查
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		if _, err := w.Write([]byte("非常好👍")); err != nil {
 			log.Printf("write root response: %v", err)
 		}
 	})
 
-	productService := products.NewService()
+	// 获取商品列表
+	productService := products.NewService(repo.New(app.db))
 	productHandler := products.NewHandler(productService)
 	r.Get("/product/list", productHandler.ListProducts)
 
@@ -52,8 +56,7 @@ func (app *application) run(handler http.Handler) error {
 
 type application struct {
 	config config
-	// logger
-	// db driver
+	db     *pgx.Conn
 }
 
 type config struct {

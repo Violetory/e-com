@@ -48,6 +48,7 @@ func main() {
 
 	api := application{
 		config: config,
+		db:     conn,
 	}
 
 	if err := api.run(api.mount()); err != nil {
