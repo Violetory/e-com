@@ -5,30 +5,35 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Violetory/e-com/internal/products"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
 
 // Mount
 func (app *application) mount() http.Handler {
-	router := chi.NewRouter()
+	r := chi.NewRouter()
 
 	// Middleware
-	router.Use(middleware.RequestID)              // 用于速率限制
-	router.Use(middleware.ClientIPFromRemoteAddr) // 用于限制和追踪
-	router.Use(middleware.Logger)
-	router.Use(middleware.Recoverer) // 恢复功能
+	r.Use(middleware.RequestID)              // 用于速率限制
+	r.Use(middleware.ClientIPFromRemoteAddr) // 用于限制和追踪
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer) // 恢复功能
 
 	// Timeout middleware
-	router.Use(middleware.Timeout(60 * time.Second))
+	r.Use(middleware.Timeout(60 * time.Second))
 
-	router.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		if _, err := w.Write([]byte("非常好👍")); err != nil {
 			log.Printf("write root response: %v", err)
 		}
 	})
 
-	return router
+	productService := products.NewService()
+	productHandler := products.NewHandler(productService)
+	r.Get("/product/list", productHandler.ListProducts)
+
+	return r
 }
 
 func (app *application) run(handler http.Handler) error {
