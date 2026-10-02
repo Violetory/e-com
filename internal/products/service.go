@@ -6,7 +6,9 @@ import (
 )
 
 type Service interface {
-	ListProducts(context context.Context) ([]repo.Product, error)
+	ListProducts(ctx context.Context) ([]repo.Product, error)
+
+	GetProductByID(ctx context.Context, id int64) (repo.Product, error)
 }
 
 type service struct {
@@ -19,4 +21,8 @@ func NewService(repo repo.Querier) Service {
 
 func (s *service) ListProducts(ctx context.Context) ([]repo.Product, error) {
 	return s.repo.ListProducts(ctx)
+}
+
+func (s *service) GetProductByID(ctx context.Context, id int64) (repo.Product, error) {
+	return s.repo.GetProductByID(ctx, id)
 }

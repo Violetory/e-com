@@ -25,6 +25,10 @@ func (app *application) mount() http.Handler {
 	// Timeout middleware
 	r.Use(middleware.Timeout(60 * time.Second))
 
+	// 初始化商品服务和处理器
+	productService := products.NewService(repo.New(app.db))
+	productHandler := products.NewHandler(productService)
+
 	// 健康检查
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		if _, err := w.Write([]byte("非常好👍")); err != nil {
@@ -33,9 +37,10 @@ func (app *application) mount() http.Handler {
 	})
 
 	// 获取商品列表
-	productService := products.NewService(repo.New(app.db))
-	productHandler := products.NewHandler(productService)
 	r.Get("/product/list", productHandler.ListProducts)
+
+	// 获取商品详情
+	r.Get("/product/get", productHandler.GetProduct)
 
 	return r
 }
